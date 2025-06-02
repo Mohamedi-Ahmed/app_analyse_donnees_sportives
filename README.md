@@ -7,6 +7,7 @@ Ce projet propose une application d'analyse de données sportives combinant **Ap
 ## Sommaire
 
 - [Objectifs](#objectifs)
+- [Aperçu de l'application](#aperçu-de-lapplication)
 - [Architecture technique](#architecture-technique)
 - [Fonctionnement](#fonctionnement)
 - [Structure du projet](#structure-du-projet)
@@ -24,9 +25,22 @@ Ce projet propose une application d'analyse de données sportives combinant **Ap
 
 ---
 
+
+## Aperçu de l'application
+
+### Interface Streamlit
+
+![Streamlit app](/img/streamlit_app.png)
+
+### Airflow - Interface utilisateur
+
+![Connexion Airflow](/img/airflow_logged.png)
+---
+
 ## Architecture technique
 
 ```
+
 Utilisateur
    │
    ├── Accès Streamlit (port 8501 - Requêtage de la base de données)
@@ -54,12 +68,15 @@ Docker Compose
 
 ### 2. **Pipelines Airflow**
 
-Deux DAGs sont définis :
 
-- `ingest_sport_data`: Charge une première fois les résultats depuis le fichier CSV vers PostgreSQL.
-- `inject_new_sport_data`: Simule l’arrivée de nouveaux résultats tous les 4 ans (`schedule_interval="*/4 * * *"` ou déclenchement manuel).
+Un seul DAG est défini dans ce projet : **ingest_sport_data**.
 
-Chaque DAG lit un fichier `.csv`, puis les insère dans la table `fact_resultats_epreuves`.
+Il est responsable de :
+- charger les résultats depuis le fichier CSV `fact_resultats_epreuves.csv` vers la BD Postgre ;
+- simuler l’arrivée de nouvelles données **tous les 4 ans**, grâce au paramètre `schedule_interval="0 0 1 1 */4"`
+- être exécuté manuellement à tout moment via l’interface Airflow.
+
+Le DAG lit un fichier `.csv` stocké dans le répertoire `dags/data/`, puis insère les données dans la table `fact_resultats_epreuves` de PostgreSQL.
 
 ### 3. **Application Streamlit**
 
@@ -99,8 +116,8 @@ APP_ANALYSE_DONNEES_SPORTIVES/
 
 ### Prérequis
 
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
+- Docker
+- Docker Compose
 
 ### Étapes
 
